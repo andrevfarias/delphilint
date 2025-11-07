@@ -24,7 +24,6 @@ object LintSettingsFrame: TLintSettingsFrame
     Anchors = [akLeft, akTop, akRight, akBottom]
     RaggedRight = True
     TabOrder = 0
-    StyleElements = [seFont, seClient]
     object GeneralSheet: TTabSheet
       Caption = 'General'
       object GeneralPanel: TPanel
