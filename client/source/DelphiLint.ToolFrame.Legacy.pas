@@ -1,4 +1,4 @@
-{
+﻿{
 DelphiLint Client
 Copyright (C) 2024 Integrated Application Development
 
@@ -184,6 +184,7 @@ uses
   , System.UITypes
   , System.Win.ComObj
   , Vcl.Dialogs
+  , Vcl.Graphics
   , Winapi.ShellAPI
   , DelphiLint.Resources
   , DelphiLint.IssueActions
@@ -669,11 +670,12 @@ end;
 
 function TLintToolFrame.GetIssueMetadataText(Issue: ILiveIssue): string;
 var
- CreationDateTime: TDateTime;
- TimeSinceCreation: TTimeSpan;
- ExtraInfo: string;
+  CreationTimeString: string;
+  CreationDateTime: TDateTime;
+  TimeSinceCreation: TTimeSpan;
+  ExtraInfo: string;
 begin
- Result := Format('(%d, %d)', [Issue.StartLine, Issue.StartLineOffset]);
+  Result := Format('(%d, %d)', [Issue.StartLine, Issue.StartLineOffset]);
 
   if Issue.HasMetadata then begin
     if Issue.CreationDate <> '' then begin
@@ -681,25 +683,25 @@ begin
       CreationDateTime := ISO8601ToDate(CreationTimeString, False);
       TimeSinceCreation := TTimeSpan.Subtract(Now, CreationDateTime);
 
-     ExtraInfo := Format('%s • %s • %s', [
-       TimeSpanToAgoString(TimeSinceCreation),
-       CIssueStatusStrs[Issue.Status],
-       IfThen(Issue.Assignee <> '', 'Assigned to ' + Issue.Assignee, 'Unassigned')
-     ]);
-   end
-   else begin
-     ExtraInfo := 'New issue';
-   end;
- end
- else begin
-   ExtraInfo := 'New issue';
- end;
+      ExtraInfo := Format('%s • %s • %s', [
+        TimeSpanToAgoString(TimeSinceCreation),
+        CIssueStatusStrs[Issue.Status],
+        IfThen(Issue.Assignee <> '', 'Assigned to ' + Issue.Assignee, 'Unassigned')
+      ]);
+    end
+    else begin
+      ExtraInfo := 'New issue';
+    end;
+  end
+  else begin
+    ExtraInfo := 'New issue';
+  end;
 
- Result := Format('%s • %s', [Result, ExtraInfo]);
+  Result := Format('%s • %s', [Result, ExtraInfo]);
 
- if not Issue.IsTethered then begin
-   Result := Format('%s • %s', [Result, 'Potentially resolved']);
- end;
+  if not Issue.IsTethered then begin
+    Result := Format('%s • %s', [Result, 'Potentially resolved']);
+  end;
 end;
 
 //______________________________________________________________________________________________________________________
@@ -740,7 +742,9 @@ var
   Rule: TRule;
   MaxImpactSeverity: TImpactSeverity;
   ImageRect: TRect;
+  MessageRect: TRect;
   MessageTextHeight: Integer;
+  MetaRect: TRect;
   MetaTextHeight: Integer;
   TextStartX: Integer;
   CurrentY: Integer;
