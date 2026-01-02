@@ -335,7 +335,7 @@ begin
     Exit;
   end;
 
-  DisabledRules := SplitString(LintContext.Settings.StandaloneDisabledRules, ',');
+  DisabledRules := TArray<string>(SplitString(LintContext.Settings.StandaloneDisabledRules, ','));
 
   SortedRules := FStandaloneRules.Values.ToArray;
   TArray.Sort<TRule>(SortedRules, TComparer<TRule>.Construct(
