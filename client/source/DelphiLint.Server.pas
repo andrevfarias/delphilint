@@ -514,7 +514,7 @@ procedure TLintServer.OnAnalyzeResponse(
   begin
     Result := TObjectList<TLintIssue>.Create;
     for Index := 0 to Json.Count - 1 do begin
-      Result.Add(TLintIssue.CreateFromJson(Json[Index] as TJSONObject));
+      Result.Add(TLintIssue.CreateFromJson(Json.Items[Index] as TJSONObject));
     end;
   end;
 
@@ -524,7 +524,7 @@ procedure TLintServer.OnAnalyzeResponse(
   begin
     SetLength(Result, Json.Count);
     for Index := 0 to Json.Count - 1 do begin
-      Result[Index] := Json[Index].Value;
+      Result[Index] := Json.Items[Index].Value;
     end;
   end;
 
@@ -607,7 +607,7 @@ var
   Rules: TObjectDictionary<string, TRule>;
 begin
   if Response.Category <> CRuleRetrieveResult then begin
-    ErrorMsg := Response.Data.AsType<string>;
+    ErrorMsg := (Response.Data as TJSONString).Value;
     ErrorCat := Response.Category;
 
     Log.Warn('Rule retrieve returned error (%d): %s', [ErrorCat, ErrorMsg]);
@@ -1009,7 +1009,7 @@ begin
 
   DataBuffer := TBytes(IdDataBuffer);
 
-  DataJsonValue := TJSONValue.ParseJSONValue(DataBuffer, 0, Length, True);
+  DataJsonValue := TJSONObject.ParseJSONValue(DataBuffer, 0, Length, True);
   Result := TTaggedMessage.Create(TLintMessage.Create(Category, DataJsonValue), Id);
 end;
 
