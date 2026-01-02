@@ -222,6 +222,11 @@ type
     procedure RefreshServer;
     procedure ReleaseServer;
   end;
+//______________________________________________________________________________________________________________________
+
+{$IF CompilerVersion < 33.0}
+function EscapedString(AValue: string): string;
+{$ENDIF}
 
 //______________________________________________________________________________________________________________________
 
@@ -1027,7 +1032,11 @@ begin
   Message := Msg.Extract;
 
   if Assigned(Message.Data) then begin
+{$IF CompilerVersion < 33.0}
+    DataBytes := TEncoding.UTF8.GetBytes(EscapedString(Message.Data.ToString));
+{$ELSE}
     DataBytes := TEncoding.UTF8.GetBytes(Message.Data.ToString);
+{$ENDIF}
 
     FTcpClient.IOHandler.Write(Length(DataBytes));
     for DataByte in DataBytes do begin
@@ -1122,5 +1131,26 @@ begin
   Result := FMessage;
   FMessage := nil;
 end;
+
+//______________________________________________________________________________________________________________________
+
+{$IF CompilerVersion < 33.0}
+function EscapedString(AValue: string): string;
+begin
+  if AValue.StartsWith('"') then
+    AValue := AValue.Substring(1, AValue.Length-2);
+
+  // Handle these special characters: \, ", #$8, #$9, #$a, #$c, #$d
+  Result := AValue
+    .Replace('\', '\\')
+    .Replace(#$8, '\b')
+    .Replace(#$9, '\t')
+    .Replace(#$a, '\n')
+    .Replace(#$c, '\f')
+    .Replace(#$d, '\r');
+
+  Log.Info('ToString: ' + Result);
+end;
+{$ENDIF}
 
 end.
