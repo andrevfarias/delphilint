@@ -234,7 +234,8 @@ begin
   );
   try
     HtmlText := FHtmlGenerator.GenerateHtmlText(Rule);
-    Assert.Contains(HtmlText, '<script src="script.js"></script>');
+    Assert.Contains(HtmlText, '<script>');
+    Assert.Contains(HtmlText, '</script>');
   finally
     FreeAndNil(Rule);
   end;
