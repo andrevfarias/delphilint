@@ -1,4 +1,4 @@
-﻿{
+{
 DelphiLint Client
 Copyright (C) 2024 Integrated Application Development
 
@@ -162,7 +162,7 @@ var
   WindowColor: TColor;
 begin
   LintContext.IDEServices.ApplyTheme(Self);
-  WindowColor := StyleServices(Self).GetSystemColor(clWindow);
+  WindowColor := StyleServices.GetSystemColor(clWindow);
   RightPanel.Color := WindowColor;
 end;
 
@@ -170,7 +170,7 @@ end;
 
 procedure TLintSetupForm.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
 begin
-  if FSaved then begin
+  if FSaved or IsSetupValid then begin
     CanClose := True;
     Exit;
   end;
