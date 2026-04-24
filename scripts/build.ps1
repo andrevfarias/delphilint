@@ -279,6 +279,9 @@ function Invoke-Project([hashtable]$Project) {
 $StandaloneArtifacts = @{}
 $CommonArtifacts = @{}
 
+$ReadmeFile = Join-Path $PSScriptRoot "../docs/INSTALL_README.md"
+$CommonArtifacts.Add($ReadmeFile, "README.md")
+
 $PackagingConfigs = $DelphiInstalls | ForEach-Object { [PackagingConfig]::new($_) }
 
 $Projects = @(
