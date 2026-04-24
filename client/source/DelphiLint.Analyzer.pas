@@ -1,4 +1,4 @@
-﻿{
+{
 DelphiLint Client
 Copyright (C) 2024 Integrated Application Development
 
@@ -151,9 +151,9 @@ begin
         ProjectOptions.SonarHostUrl,
         LintContext.Settings.GetSonarHostToken(
           ProjectOptions.SonarHostUrl,
-          ProjectOptions.SonarHostProjectKey
+          ProjectOptions.EffectiveSonarHostProjectKey
         ),
-        ProjectOptions.SonarHostProjectKey
+        ProjectOptions.EffectiveSonarHostProjectKey
       );
     end
     else if not LintContext.Settings.StandaloneUseDefaultRules then begin
@@ -665,9 +665,9 @@ begin
         ProjectOptions.SonarHostUrl,
         LintContext.Settings.GetSonarHostToken(
           ProjectOptions.SonarHostUrl,
-          ProjectOptions.SonarHostProjectKey
+          ProjectOptions.EffectiveSonarHostProjectKey
         ),
-        ProjectOptions.SonarHostProjectKey
+        ProjectOptions.EffectiveSonarHostProjectKey
       );
       DownloadPlugin := ProjectOptions.SonarHostDownloadPlugin;
     end;

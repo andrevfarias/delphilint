@@ -1,4 +1,4 @@
-﻿{
+{
 DelphiLint Client
 Copyright (C) 2024 Integrated Application Development
 
@@ -21,6 +21,7 @@ interface
 
 uses
     DelphiLint.Properties
+  , System.Classes
   ;
 
 type
@@ -29,6 +30,7 @@ type
     FDir: string;
     function GetProjectBaseDirAbsolute: string;
     function GetProjectPropertiesPath: string;
+    function GetEffectiveSonarHostProjectKey: string;
   protected
     function RegisterFields: TArray<TPropFieldBase>; override;
   public
@@ -43,12 +45,15 @@ type
 
     property AnalysisBaseDirAbsolute: string read GetProjectBaseDirAbsolute;
     property ProjectPropertiesPath: string read GetProjectPropertiesPath;
+    property EffectiveSonarHostProjectKey: string read GetEffectiveSonarHostProjectKey;
   end;
 
 implementation
 
 uses
     System.IOUtils
+  , System.SysUtils
+  , System.StrUtils
   , DelphiLint.Utils
   ;
 
@@ -81,6 +86,46 @@ begin
   Result := '';
   if AnalysisReadProperties then begin
     Result := TPath.Combine(AnalysisBaseDirAbsolute, 'sonar-project.properties');
+  end;
+end;
+
+//______________________________________________________________________________________________________________________
+
+function TLintProjectOptions.GetEffectiveSonarHostProjectKey: string;
+var
+  PropertiesPath: string;
+  Lines: TStringList;
+  Line: string;
+  EqPos: Integer;
+  Key: string;
+  Value: string;
+begin
+  Result := SonarHostProjectKey;
+  if Result <> '' then begin
+    Exit;
+  end;
+
+  PropertiesPath := ProjectPropertiesPath;
+  if (PropertiesPath = '') or not FileExists(PropertiesPath) then begin
+    Exit;
+  end;
+
+  Lines := TStringList.Create;
+  try
+    Lines.LoadFromFile(PropertiesPath);
+    for Line in Lines do begin
+      EqPos := Pos('=', Line);
+      if EqPos > 0 then begin
+        Key := Trim(Copy(Line, 1, EqPos - 1));
+        Value := Trim(Copy(Line, EqPos + 1, MaxInt));
+        if Key = 'sonar.projectKey' then begin
+          Result := Value;
+          Exit;
+        end;
+      end;
+    end;
+  finally
+    FreeAndNil(Lines);
   end;
 end;
 
