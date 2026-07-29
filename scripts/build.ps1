@@ -35,6 +35,7 @@ $ErrorActionPreference = "Stop"
 Import-Module "$PSScriptRoot/common" -Force
 
 $Global:DelphiVersionMap = @{
+  "250" = [DelphiVersion]::new("10.2", "Tokyo", "250", "19.0")
   "280" = [DelphiVersion]::new("11", "Alexandria", "280", "22.0")
   "290" = [DelphiVersion]::new("12", "Athens", "290", "23.0")
   "370" = [DelphiVersion]::new("13", "Florence", "370", "37.0")
@@ -169,7 +170,13 @@ function Assert-ExitCode([string]$Desc) {
 function Invoke-ClientCompile([PackagingConfig]$Config) {
   Push-Location (Join-Path $PSScriptRoot ..\client\source)
   try {
-    & cmd /c "`"$($Config.Delphi.InstallationPath)\\bin\\rsvars.bat`" && msbuild DelphiLintClient$($Config.Delphi.Version.PackageVersion).dproj /p:config=`"Release`""
+    $command = "`"$($Config.Delphi.InstallationPath)\bin\rsvars.bat`" && msbuild DelphiLintClient$($Config.Delphi.Version.PackageVersion).dproj /p:config=`"Release`""
+    # For Delphi 10.2 Tokyo, use MSBuild externally to avoid command line length limit errors
+    if ($Config.Delphi.Version.PackageVersion -eq "250") {
+      $command += " /p:DCC_UseMSBuildExternally=true"
+      # $command += " /v:d > msbuild_dcc_log.txt 2>&1" # Save DCC output to file for debugging
+    }
+    & cmd /c $command
     Assert-ExitCode "Delphi compile"
   }
   finally {
